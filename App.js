@@ -1,15 +1,19 @@
-import React, { useContext } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { AuthProvider, AuthContext } from "./src/contexts/AuthContext";
-import { ActivityIndicator, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Importar ícones
+import React, { useContext } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { ActivityIndicator, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-import LoginScreen from "./src/screens/LoginScreen";
-import DashboardScreen from "./src/screens/DashboardScreen";
-import TransactionsScreen from "./src/screens/TransactionsScreen";
-import AddTransactionScreen from "./src/screens/AddTransactionScreen";
+import { AuthProvider, AuthContext } from './src/presentation/contexts/AuthContext';
+import { TransactionProvider } from './src/presentation/contexts/TransactionContext';
+
+import LoginScreen from './src/presentation/screens/LoginScreen';
+import DashboardScreen from './src/presentation/screens/DashboardScreen';
+import TransactionsScreen from './src/presentation/screens/TransactionsScreen';
+import AddTransactionScreen from './src/presentation/screens/AddTransactionScreen';
+
+import COLORS from './src/core/constants/colors';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,29 +31,18 @@ function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: false, // Remove o header padrão para usarmos o nosso customizado nas telas
+        headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-
-          if (route.name === "Dashboard") {
-            iconName = focused ? "pie-chart" : "pie-chart-outline";
-          } else if (route.name === "Extrato") {
-            iconName = focused ? "list" : "list-outline";
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
+          const icons = {
+            Dashboard: focused ? 'pie-chart' : 'pie-chart-outline',
+            Extrato: focused ? 'list' : 'list-outline',
+          };
+          return <Ionicons name={icons[route.name]} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "#2A9D8F", // Cor primária do nosso tema
-        tabBarInactiveTintColor: "#8D99AE", // Cor secundária do texto
-        tabBarStyle: {
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
-        },
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textLight,
+        tabBarStyle: { paddingBottom: 5, paddingTop: 5, height: 60 },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
@@ -63,8 +56,8 @@ function Routes() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -77,10 +70,7 @@ function Routes() {
           <Stack.Screen
             name="AddTransaction"
             component={AddTransactionScreen}
-            options={{
-              headerShown: true,
-              title: "Nova Transação",
-            }}
+            options={{ headerShown: true, title: 'Nova Transação' }}
           />
         </>
       ) : (
@@ -94,7 +84,9 @@ export default function App() {
   return (
     <NavigationContainer>
       <AuthProvider>
-        <Routes />
+        <TransactionProvider>
+          <Routes />
+        </TransactionProvider>
       </AuthProvider>
     </NavigationContainer>
   );
